@@ -15,7 +15,7 @@ La policia podrà:
 
 - Certificar avisos.
 - Fer que determinats avisos siguin més destacats.
-- Modificar el rànquing de les persones més perilloses d’Espanya.
+- Modificar el llistat de les persones més perilloses d’Espanya.
 - Fer tot el que pot fer un usuari normal.
 
 ### Usuari normal
