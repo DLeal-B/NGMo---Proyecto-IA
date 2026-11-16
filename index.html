@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="NGMo: mapa ciudadano de avisos de seguridad en España." />
+    <title>NGMo · Seguridad ciudadana</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="NGMo inicio">
+          <span class="brand-mark"><span></span><span></span><span></span></span>
+          <span>NG<span class="brand-accent">Mo</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Navegación principal">
+          <a class="active" href="#mapa">Mapa en directo</a>
+          <a href="#ranking">Personas de riesgo</a>
+          <a href="#como-funciona">Cómo funciona</a>
+        </nav>
+        <div class="header-actions">
+          <button class="location-button" id="locationButton" type="button" aria-label="Usar mi ubicación">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/><circle cx="12" cy="12" r="4"/></svg>
+            <span>Mi ubicación</span>
+          </button>
+          <button class="avatar-button" id="loginButton" type="button" aria-label="Abrir sesión">LM</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" id="mapa">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="live-dot"></span> Red ciudadana activa</div>
+            <h1>Tu ciudad,<br /><em>más informada.</em></h1>
+            <p class="hero-lead">Consulta avisos de seguridad cerca de ti y ayuda a tu comunidad a estar alerta.</p>
+            <button class="primary-button report-button" type="button">
+              <span class="plus">+</span> Crear un aviso
+            </button>
+            <div class="hero-note"><span class="shield-icon">✓</span> Los avisos verificados destacan en el mapa</div>
+          </div>
+
+          <div class="map-card">
+            <div class="map-toolbar">
+              <div class="map-location">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                <strong id="currentLocation">Madrid, España</strong>
+                <span class="location-status">• Ahora</span>
+              </div>
+              <button class="map-expand" type="button" aria-label="Ampliar mapa">↗</button>
+            </div>
+            <div class="map-canvas" aria-label="Mapa navegable de avisos">
+              <div id="realMap"></div>
+              <div class="you-are-here" id="locationMarker"><span></span><small>Estás aquí</small></div>
+            </div>
+            <div class="map-legend">
+              <span><i class="legend-dot light"></i>Leve</span>
+              <span><i class="legend-dot medium"></i>Medio</span>
+              <span><i class="legend-dot high"></i>Muy grave</span>
+              <span class="legend-verified"><i>✓</i> Certificado</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <div class="alerts-panel">
+            <div class="section-heading">
+              <div><p class="section-kicker">Cerca de ti</p><h2>Avisos recientes</h2></div>
+              <span class="live-label"><span class="live-dot"></span> En directo</span>
+            </div>
+            <div class="filters" role="group" aria-label="Filtrar avisos">
+              <button class="filter active" data-filter="Todos" type="button">Todos <span>12</span></button>
+              <button class="filter" data-filter="Robo" type="button">Robo <span>4</span></button>
+              <button class="filter" data-filter="Agresión" type="button">Agresión <span>2</span></button>
+              <button class="filter" data-filter="Vandalismo" type="button">Vandalismo <span>3</span></button>
+              <button class="filter" data-filter="Hurto" type="button">Hurto <span>3</span></button>
+            </div>
+            <div class="alert-list" id="alertList">
+              <article class="alert-card" data-type="Robo">
+                <div class="alert-icon robbery"><span>↗</span></div>
+                <div class="alert-details"><div class="alert-title-row"><h3>Robo con fuerza</h3><span class="verified-badge">✓ Verificado</span></div><p>Entrada forzada en comercio · Calle de Alcalá</p><div class="alert-meta"><span>Hace 18 min</span><span class="severity high-text">Muy grave</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
+              </article>
+              <article class="alert-card" data-type="Agresión">
+                <div class="alert-icon assault"><span>!</span></div>
+                <div class="alert-details"><div class="alert-title-row"><h3>Agresión en vía pública</h3><span class="verified-badge">✓ Verificado</span></div><p>Zona de Plaza Elíptica · Madrid</p><div class="alert-meta"><span>Hace 42 min</span><span class="severity medium-text">Medio</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
+              </article>
+              <article class="alert-card" data-type="Hurto">
+                <div class="alert-icon theft"><span>◌</span></div>
+                <div class="alert-details"><div class="alert-title-row"><h3>Hurto de pertenencias</h3></div><p>Parada de metro Sol · Línea 3</p><div class="alert-meta"><span>Hace 1 h</span><span class="severity light-text">Leve</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
+              </article>
+              <article class="alert-card" data-type="Vandalismo">
+                <div class="alert-icon assault"><span>!</span></div>
+                <div class="alert-details"><div class="alert-title-row"><h3>Vandalismo en mobiliario urbano</h3></div><p>Centro de Guadalajara</p><div class="alert-meta"><span>Hace 2 h</span><span class="severity medium-text">Medio</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
+              </article>
+            </div>
+            <button class="text-button" id="showMore" type="button">Ver todos los avisos <span>→</span></button>
+          </div>
+
+          <aside class="side-column">
+            <section class="stat-card">
+              <div class="stat-top"><span class="stat-icon">◒</span><span class="trend">↗ 8,4%</span></div>
+              <p>Avisos activos hoy</p><strong>1.284</strong><small>En toda España</small>
+              <div class="sparkline"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </section>
+            <section class="ranking-card" id="ranking">
+              <div class="section-heading compact"><div><p class="section-kicker">Datos certificados</p><h2>Personas de riesgo</h2></div><button class="circle-arrow" id="openRankingButton" aria-label="Ver listado completo">→</button></div>
+              <p class="ranking-description">Información basada en avisos certificados por las autoridades.</p>
+              <div class="ranking-list">
+                <div class="person-row"><span class="rank rank-first">01</span><div class="person-avatar avatar-one">H</div><div class="person-info"><strong>HustleHard</strong><span>Madrid · 14 avisos certificados</span></div><span class="risk high-risk">Alto</span></div>
+                <div class="person-row"><span class="rank">02</span><div class="person-avatar avatar-two">J</div><div class="person-info"><strong>Identidad reservada</strong><span>Barcelona · 9 avisos certificados</span></div><span class="risk medium-risk">Medio</span></div>
+                <div class="person-row"><span class="rank">03</span><div class="person-avatar avatar-three">M</div><div class="person-info"><strong>Identidad reservada</strong><span>Valencia · 7 avisos certificados</span></div><span class="risk medium-risk">Medio</span></div>
+              </div>
+              <button class="text-button" id="openRankingLink" type="button">Consultar listado completo <span>→</span></button>
+            </section>
+          </aside>
+        </section>
+
+        <section class="how-section" id="como-funciona">
+          <div><p class="section-kicker">Participa</p><h2>La seguridad la hacemos<br /><em>entre todos.</em></h2></div>
+          <div class="steps"><div class="step"><span>01</span><h3>Detecta</h3><p>Comparte lo que ocurre cerca de ti.</p></div><div class="step"><span>02</span><h3>Consulta</h3><p>Infórmate con datos de tu comunidad.</p></div><div class="step"><span>03</span><h3>Colabora</h3><p>Las autoridades verifican y actúan.</p></div></div>
+        </section>
+      </main>
+      <footer><span>© 2026 NGMo</span><span>Una herramienta de información ciudadana · Datos de demostración</span><a href="#como-funciona">Privacidad y seguridad</a></footer>
+    </div>
+
+    <div class="modal-backdrop" id="reportModal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+        <button class="modal-close" data-close="reportModal" aria-label="Cerrar">×</button>
+        <p class="section-kicker">Nuevo aviso</p><h2 id="reportTitle">Ayuda a tu comunidad</h2><p class="modal-intro">No compartas datos personales. Este formulario es una demostración.</p>
+        <form id="reportForm"><label>Tipo de incidente<select id="reportType" required><option value="">Selecciona un tipo</option><option>Robo</option><option>Agresión</option><option>Vandalismo</option><option>Hurto</option></select></label><label>Ubicación<input id="reportLocation" required type="text" placeholder="Calle, ciudad o código postal" /></label><label>Cuéntanos qué ha ocurrido<textarea id="reportDescription" required rows="3" placeholder="Describe los hechos de forma objetiva"></textarea></label><button class="primary-button" type="submit">Enviar aviso</button></form>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="loginModal" hidden>
+      <div class="modal small-modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+        <button class="modal-close" data-close="loginModal" aria-label="Cerrar">×</button><p class="section-kicker">Tu cuenta</p><h2 id="loginTitle">Bienvenido a NGMo</h2><p class="modal-intro">Accede para crear avisos y guardar tus zonas.</p>
+        <form id="loginForm"><label>Usuario<input id="loginUser" required type="text" autocomplete="username" /></label><label>Contraseña<input id="loginPassword" required type="password" autocomplete="current-password" /></label><button class="primary-button" type="submit">Iniciar sesión</button><button class="secondary-button" type="button" id="registerButton">Crear una cuenta</button></form>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="registerModal" hidden>
+      <div class="modal small-modal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+        <button class="modal-close" data-close="registerModal" aria-label="Cerrar">×</button><p class="section-kicker">Registro</p><h2 id="registerTitle">Crea tu cuenta</h2><p class="modal-intro">Tu cuenta se guardará en este navegador. Los avisos requieren una sesión iniciada.</p>
+        <form id="registerForm"><label>Usuario<input id="registerUser" required type="text" minlength="3" autocomplete="username" /></label><label>Contraseña<input id="registerPassword" required type="password" minlength="4" autocomplete="new-password" /></label><button class="primary-button" type="submit">Registrarme</button></form>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="rankingModal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rankingTitle">
+        <button class="modal-close" data-close="rankingModal" aria-label="Cerrar">×</button><p class="section-kicker">Listado completo</p><h2 id="rankingTitle">Personas de riesgo</h2><p class="modal-intro">Listado basado en avisos certificados por la policía.</p>
+        <div class="ranking-list full-ranking"><div class="person-row"><span class="rank rank-first">01</span><div class="person-avatar avatar-one">H</div><div class="person-info"><strong>HustleHard</strong><span>Madrid · 14 avisos certificados</span></div><span class="risk high-risk">Alto</span></div><div class="person-row"><span class="rank">02</span><div class="person-avatar avatar-two">J</div><div class="person-info"><strong>Identidad reservada</strong><span>Barcelona · 9 avisos certificados</span></div><span class="risk medium-risk">Medio</span></div><div class="person-row"><span class="rank">03</span><div class="person-avatar avatar-three">M</div><div class="person-info"><strong>Identidad reservada</strong><span>Valencia · 7 avisos certificados</span></div><span class="risk medium-risk">Medio</span></div></div>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="./dist/app.js" defer></script>
+  </body>
+</html>
