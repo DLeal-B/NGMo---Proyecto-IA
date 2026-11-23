@@ -16,6 +16,7 @@
 | 6 | [`promtModificacion6.md`](../promtModificacion6.md) | Certificació i rànquing |
 | 7 | [`promtModificacion7.md`](../promtModificacion7.md) | Pàgines de policia i administrador |
 | 8 | [`promtModificaciones.md`](../promtModificaciones.md) | Requisits finals d'interacció |
+| 9 | [`promtModificacion8.md`](prompts/promtModificacion8.md) | Backend .NET i SQLite |
 
 ---
 
@@ -133,4 +134,19 @@ Recull els requisits finals d'interacció i configuració:
 - Usuari policia: `policia / 1234`.
 - Tres persones de risc, inclosa `HustleHard`.
 - Pop-ups amb tipus, antiguitat i certificació dels avisos.
-- Detecció instantània de la ubicació i avisos pròxims.
+- Detecció instantània de la ubicació i avisos pròxims.In
+
+---
+
+## 9. `promtModificacion8.md`
+
+**👤 Creador:** Equip del projecte NGMo  
+**🏷️ Categoria:** Backend i persistència
+
+Desenvolupa el backend amb **.NET** i **SQLite**, estructurat en tres taules principals:
+
+- **Avisos:** identificador autoincremental, títol, ubicació, descripció, data de creació, usuari creador, estat de verificació i delicte.
+- **Users:** identificador autoincremental, nom, contrasenya i rol opcional (`admin` o `policia`).
+- **Delincuentes:** identificador autoincremental i nom del delincuent.
+
+Defineix les relacions entre els avisos, els usuaris i els delincuentes, i permet crear, modificar, verificar i eliminar registres. El rànquing d'usuaris actius ha de consultar les dades registrades a la base de dades.In
