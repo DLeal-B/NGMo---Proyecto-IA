@@ -28,7 +28,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/><circle cx="12" cy="12" r="4"/></svg>
             <span>Mi ubicación</span>
           </button>
+          <button class="role-nav-button" id="policePageButton" type="button" hidden>Panel policía</button>
+          <button class="role-nav-button" id="adminPageButton" type="button" hidden>Panel admin</button>
           <button class="avatar-button" id="loginButton" type="button" aria-label="Abrir sesión">LM</button>
+          <button class="logout-button" id="logoutButton" type="button" hidden>Cerrar sesión</button>
         </div>
       </header>
 
@@ -51,11 +54,12 @@
                 <strong id="currentLocation">Madrid, España</strong>
                 <span class="location-status">• Ahora</span>
               </div>
-              <button class="map-expand" type="button" aria-label="Ampliar mapa">↗</button>
+              <button class="map-expand" id="mapExpandButton" type="button" aria-label="Ampliar mapa">↗</button>
             </div>
             <div class="map-canvas" aria-label="Mapa navegable de avisos">
               <div id="realMap"></div>
               <div class="you-are-here" id="locationMarker"><span></span><small>Estás aquí</small></div>
+              <button class="map-locate" id="mapLocateButton" type="button" aria-label="Volver a mi ubicación" title="Volver a mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
             </div>
             <div class="map-legend">
               <span><i class="legend-dot light"></i>Leve</span>
@@ -79,25 +83,14 @@
               <button class="filter" data-filter="Vandalismo" type="button">Vandalismo <span>3</span></button>
               <button class="filter" data-filter="Hurto" type="button">Hurto <span>3</span></button>
             </div>
-            <div class="alert-list" id="alertList">
-              <article class="alert-card" data-type="Robo">
-                <div class="alert-icon robbery"><span>↗</span></div>
-                <div class="alert-details"><div class="alert-title-row"><h3>Robo con fuerza</h3><span class="verified-badge">✓ Verificado</span></div><p>Entrada forzada en comercio · Calle de Alcalá</p><div class="alert-meta"><span>Hace 18 min</span><span class="severity high-text">Muy grave</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
-              </article>
-              <article class="alert-card" data-type="Agresión">
-                <div class="alert-icon assault"><span>!</span></div>
-                <div class="alert-details"><div class="alert-title-row"><h3>Agresión en vía pública</h3><span class="verified-badge">✓ Verificado</span></div><p>Zona de Plaza Elíptica · Madrid</p><div class="alert-meta"><span>Hace 42 min</span><span class="severity medium-text">Medio</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
-              </article>
-              <article class="alert-card" data-type="Hurto">
-                <div class="alert-icon theft"><span>◌</span></div>
-                <div class="alert-details"><div class="alert-title-row"><h3>Hurto de pertenencias</h3></div><p>Parada de metro Sol · Línea 3</p><div class="alert-meta"><span>Hace 1 h</span><span class="severity light-text">Leve</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
-              </article>
-              <article class="alert-card" data-type="Vandalismo">
-                <div class="alert-icon assault"><span>!</span></div>
-                <div class="alert-details"><div class="alert-title-row"><h3>Vandalismo en mobiliario urbano</h3></div><p>Centro de Guadalajara</p><div class="alert-meta"><span>Hace 2 h</span><span class="severity medium-text">Medio</span></div></div><button class="more-button" aria-label="Más opciones">•••</button>
-              </article>
-            </div>
+            <div class="alert-list" id="alertList"></div>
             <button class="text-button" id="showMore" type="button">Ver todos los avisos <span>→</span></button>
+            <section class="my-alerts-panel" id="myAlertsPanel" hidden>
+              <div class="section-heading my-alerts-heading">
+                <div><p class="section-kicker">Tu actividad</p><h2>Mis avisos</h2></div>
+              </div>
+              <div class="alert-list" id="myAlertList"></div>
+            </section>
           </div>
 
           <aside class="side-column">
@@ -116,6 +109,11 @@
               </div>
               <button class="text-button" id="openRankingLink" type="button">Consultar listado completo <span>→</span></button>
             </section>
+            <section class="ranking-card report-ranking-card">
+              <div class="section-heading compact"><div><p class="section-kicker">Actividad de la comunidad</p><h2>Usuarios más activos</h2></div></div>
+              <p class="ranking-description">Usuarios con más avisos publicados. No se cuenta a la policía.</p>
+              <div class="ranking-list" id="reportRankingList"></div>
+            </section>
           </aside>
         </section>
 
@@ -124,14 +122,30 @@
           <div class="steps"><div class="step"><span>01</span><h3>Detecta</h3><p>Comparte lo que ocurre cerca de ti.</p></div><div class="step"><span>02</span><h3>Consulta</h3><p>Infórmate con datos de tu comunidad.</p></div><div class="step"><span>03</span><h3>Colabora</h3><p>Las autoridades verifican y actúan.</p></div></div>
         </section>
       </main>
+      <section class="role-page" id="policePage" hidden>
+        <div class="role-page-heading">
+          <div><p class="section-kicker">Gestión policial</p><h1>Avisos pendientes de certificación</h1></div>
+          <button class="secondary-button" id="backFromPolice" type="button">Volver a la página principal</button>
+        </div>
+        <p class="role-page-intro" id="policeLocationStatus">Avisos ordenados desde tu ubicación, del más cercano al más lejano.</p>
+        <div class="role-incident-list" id="policeIncidentList"></div>
+      </section>
+      <section class="role-page" id="adminPage" hidden>
+        <div class="role-page-heading">
+          <div><p class="section-kicker">Administración</p><h1>Todos los avisos</h1></div>
+          <button class="secondary-button" id="backFromAdmin" type="button">Volver a la página principal</button>
+        </div>
+        <p class="role-page-intro">Desde aquí puedes modificar o eliminar cualquier aviso de la aplicación.</p>
+        <div class="role-incident-list" id="adminIncidentList"></div>
+      </section>
       <footer><span>© 2026 NGMo</span><span>Una herramienta de información ciudadana · Datos de demostración</span><a href="#como-funciona">Privacidad y seguridad</a></footer>
     </div>
 
     <div class="modal-backdrop" id="reportModal" hidden>
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+      <div class="modal report-modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
         <button class="modal-close" data-close="reportModal" aria-label="Cerrar">×</button>
         <p class="section-kicker">Nuevo aviso</p><h2 id="reportTitle">Ayuda a tu comunidad</h2><p class="modal-intro">No compartas datos personales. Este formulario es una demostración.</p>
-        <form id="reportForm"><label>Tipo de incidente<select id="reportType" required><option value="">Selecciona un tipo</option><option>Robo</option><option>Agresión</option><option>Vandalismo</option><option>Hurto</option></select></label><label>Ubicación<input id="reportLocation" required type="text" placeholder="Calle, ciudad o código postal" /></label><label>Cuéntanos qué ha ocurrido<textarea id="reportDescription" required rows="3" placeholder="Describe los hechos de forma objetiva"></textarea></label><button class="primary-button" type="submit">Enviar aviso</button></form>
+        <form id="reportForm"><label>Tipo de incidente<select id="reportType" required><option value="">Selecciona un tipo</option><option>Robo</option><option>Agresión</option><option>Vandalismo</option><option>Hurto</option></select></label><label>Ubicación del incidente</label><div id="reportMap" class="report-map" aria-label="Selecciona en el mapa dónde ocurrió el incidente"></div><p id="locationSelectionStatus" class="location-selection-status" role="status">Selecciona en el mapa el lugar donde ocurrió.</p><label>Cuéntanos qué ha ocurrido<textarea id="reportDescription" required rows="3" placeholder="Describe los hechos de forma objetiva"></textarea></label><button class="primary-button" type="submit">Enviar aviso</button></form>
       </div>
     </div>
     <div class="modal-backdrop" id="loginModal" hidden>
@@ -150,6 +164,30 @@
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rankingTitle">
         <button class="modal-close" data-close="rankingModal" aria-label="Cerrar">×</button><p class="section-kicker">Listado completo</p><h2 id="rankingTitle">Personas de riesgo</h2><p class="modal-intro">Listado basado en avisos certificados por la policía.</p>
         <div class="ranking-list full-ranking"><div class="person-row"><span class="rank rank-first">01</span><div class="person-avatar avatar-one">H</div><div class="person-info"><strong>HustleHard</strong><span>Madrid · 14 avisos certificados</span></div><span class="risk high-risk">Alto</span></div><div class="person-row"><span class="rank">02</span><div class="person-avatar avatar-two">J</div><div class="person-info"><strong>Identidad reservada</strong><span>Barcelona · 9 avisos certificados</span></div><span class="risk medium-risk">Medio</span></div><div class="person-row"><span class="rank">03</span><div class="person-avatar avatar-three">M</div><div class="person-info"><strong>Identidad reservada</strong><span>Valencia · 7 avisos certificados</span></div><span class="risk medium-risk">Medio</span></div></div>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="allIncidentsModal" hidden>
+      <div class="modal all-incidents-modal" role="dialog" aria-modal="true" aria-labelledby="allIncidentsTitle">
+        <button class="modal-close" data-close="allIncidentsModal" aria-label="Cerrar">×</button>
+        <p class="section-kicker">Avisos disponibles</p><h2 id="allIncidentsTitle">Todos los avisos</h2>
+        <div class="all-incidents-list" id="allIncidentsList"></div>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="editIncidentModal" hidden>
+      <div class="modal edit-incident-modal" role="dialog" aria-modal="true" aria-labelledby="editIncidentTitle">
+        <button class="modal-close" data-close="editIncidentModal" aria-label="Cerrar">×</button>
+        <p class="section-kicker">Administración</p><h2 id="editIncidentTitle">Modificar aviso</h2>
+        <form id="editIncidentForm">
+          <label>Título<input id="editIncidentName" required type="text" /></label>
+          <label>Tipo de incidente<select id="editIncidentType" required><option>Robo</option><option>Agresión</option><option>Vandalismo</option><option>Hurto</option></select></label>
+          <label>Ubicación o descripción<input id="editIncidentPlace" required type="text" /></label>
+          <label>Gravedad<select id="editIncidentSeverity" required><option>Leve</option><option>Medio</option><option>Muy grave</option><option>Pendiente</option></select></label>
+          <div class="edit-coordinates">
+            <label>Latitud<input id="editIncidentLatitude" required type="number" step="any" min="-90" max="90" /></label>
+            <label>Longitud<input id="editIncidentLongitude" required type="number" step="any" min="-180" max="180" /></label>
+          </div>
+          <button class="primary-button" type="submit">Guardar cambios</button>
+        </form>
       </div>
     </div>
     <div class="toast" id="toast" role="status"></div>

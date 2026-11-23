@@ -1,0 +1,6 @@
+## Modificaciones genereales que quiero que tenga la web
+
+- Haz que la lista de avisos que hay en la aplicacion se actualice cada vez que haya un aviso.
+- Haz que la lista de avisos cuando pulses en una categoria te salgan solamente los avisos de esa categoria, que haya un sistema de filtrado por categoria.
+- Que el boton de ver todos los avisos se abra una ventana emergente donde te muestre todos los avisos disponibles no los ultimos que estan puestos.
+- Haz que al momento de iniciar sesion no salga solamente policia en el aivso, si el usuario es admin, debera de salir admin, si el usuario es policia, debera de salir policia, y si el nombre del usuario no es ninguno de estos dos casos, pon solamente un aviso de que se ha iniciado la sesion correctamente.

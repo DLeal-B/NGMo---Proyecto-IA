@@ -1,0 +1,5 @@
+## Modificaciones genereales que quiero que tenga la web
+
+- Crea una pagina aparte, que no sea la principal, para que al rol de policia le salga un listado de todos los avisos sin certificar, estos avisos deben de salir segun la proximidad de su ubicacion, en los cuales le salga un pequeño boton el cual el policia pueda certificar ese aviso, en el momento que el policia lo ceritifique, el estado de certificacion de ese aviso varia a certificado.
+- Los filtros del listado de avisos recientes NO quiero que solamente se categorice en el mapa, quiero que tambien en el listado, si por ejemplo pulso la categoria robo, me salgan unicamente los avisos de robos, quiero que esos avisos me salgan dependiendo de la proximidad de mi ubicacion, de mas cerca a mas lejos.
+- Crea una pagina aparte, que no sea la principal, para que el rol de admin le salgan un listado de todos los avisos, y que tenga un menu de opciones para cada uno de los avisos en los que pueda eliminar y/o modificar los avisos que hay presentes en la lista.
