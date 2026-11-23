@@ -150,3 +150,5 @@ Desenvolupa el backend amb **.NET** i **SQLite**, estructurat en tres taules pri
 - **Delincuentes:** identificador autoincremental i nom del delincuent.
 
 Defineix les relacions entre els avisos, els usuaris i els delincuentes, i permet crear, modificar, verificar i eliminar registres. El rànquing d'usuaris actius ha de consultar les dades registrades a la base de dades.In
+
+També hem demanat que totes les dades que es guardaben en localstorage es guardin en la base de dades

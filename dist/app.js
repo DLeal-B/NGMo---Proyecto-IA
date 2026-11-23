@@ -16,18 +16,10 @@ const setModal = (id, open) => {
     if (open)
         modal.querySelector("input, select, textarea")?.focus();
 };
-const incidents = [
-    { id: "demo-robo", title: "Robo con fuerza", type: "Robo", coordinates: [40.4168, -3.7038], age: "18 minutos", certified: true, severity: "Muy grave", place: "Calle de Alcalá, Madrid" },
-    { id: "demo-hurto", title: "Hurto de pertenencias", type: "Hurto", coordinates: [40.4185, -3.6994], age: "1 hora", certified: false, severity: "Leve", place: "Metro Sol, Madrid" },
-    { id: "demo-agresion", title: "Agresión en vía pública", type: "Agresión", coordinates: [40.385, -3.719], age: "42 minutos", certified: true, severity: "Medio", place: "Plaza Elíptica, Madrid" },
-    { id: "demo-vandalismo", title: "Vandalismo", type: "Vandalismo", coordinates: [40.469, -3.379], age: "2 horas", certified: false, severity: "Medio", place: "Guadalajara" },
-];
-const storedIncidentsKey = "ngmo-incidents";
-const storedCertificationsKey = "ngmo-certified-incidents";
-const storedDeletedIncidentsKey = "ngmo-deleted-incidents";
-const storedIncidentOverridesKey = "ngmo-incident-overrides";
-const storedUsersKey = "ngmo-users";
-const storedSessionKey = "ngmo-session";
+const apiBaseUrl = "http://localhost:5180/api";
+const incidents = [];
+let backendIncidents = [];
+let currentUser = null;
 const defaultCoordinates = [40.4168, -3.7038];
 let map = null;
 let pickerMap = null;
@@ -41,64 +33,56 @@ let incidentMarkers = [];
 let currentFilter = "Todos";
 let currentPage = "home";
 let editingIncidentId = null;
-const getStoredIdSet = (key) => {
+const getStoredIncidents = () => backendIncidents;
+const getUserIncidents = () => backendIncidents.filter((incident) => incident.author === currentUser?.name);
+const apiRequest = async (path, options) => {
+    const response = await fetch(`${apiBaseUrl}${path}`, {
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        ...options,
+    });
+    if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.message ?? `Error de API (${response.status})`);
+    }
+    return response.status === 204 ? undefined : response.json();
+};
+const mapBackendIncident = (item) => {
+    const elapsedMinutes = Math.max(0, Math.round((Date.now() - Date.parse(item.fechaCreacion)) / 60000));
+    const age = elapsedMinutes < 60 ? `${elapsedMinutes} minutos` : `${Math.round(elapsedMinutes / 60)} horas`;
+    return {
+        id: String(item.idAvisos),
+        title: item.titolAvis,
+        type: item.type,
+        coordinates: [item.latitude, item.longitude],
+        age,
+        certified: item.verificado,
+        severity: item.severity,
+        place: item.ubicacion + (item.descripcion ? ` · ${item.descripcion}` : ""),
+        author: item.userName,
+        databaseUserId: item.idUser,
+        databaseDelincuentId: item.idDelincuent,
+    };
+};
+const loadBackendData = async () => {
     try {
-        const savedIds = JSON.parse(localStorage.getItem(key) ?? "[]");
-        if (!Array.isArray(savedIds))
-            return new Set();
-        return new Set(savedIds.filter((id) => typeof id === "string"));
+        const data = await apiRequest("/avisos");
+        backendIncidents = data.map(mapBackendIncident);
+        refreshStoredViews();
+        if (!map)
+            initializeMap();
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "No se pudo cargar la base de datos");
+    }
+};
+const restoreSession = async () => {
+    try {
+        currentUser = await apiRequest("/session");
+        updateSessionButton();
     }
     catch {
-        return new Set();
-    }
-};
-const getIncidentOverrides = () => {
-    try {
-        const savedOverrides = JSON.parse(localStorage.getItem(storedIncidentOverridesKey) ?? "{}");
-        if (!savedOverrides || typeof savedOverrides !== "object" || Array.isArray(savedOverrides))
-            return {};
-        return savedOverrides;
-    }
-    catch {
-        return {};
-    }
-};
-const getStoredIncidents = () => {
-    const certifiedIds = getCertifiedIncidentIds();
-    const deletedIds = getStoredIdSet(storedDeletedIncidentsKey);
-    const overrides = getIncidentOverrides();
-    return [...incidents, ...getUserIncidents()]
-        .map((incident) => {
-        const updated = incident.id ? overrides[incident.id] : undefined;
-        return {
-            ...incident,
-            ...updated,
-            certified: incident.certified || Boolean(incident.id && certifiedIds.has(incident.id)),
-        };
-    })
-        .filter((incident) => !incident.id || !deletedIds.has(incident.id));
-};
-const getCertifiedIncidentIds = () => {
-    return getStoredIdSet(storedCertificationsKey);
-};
-const getUserIncidents = () => {
-    try {
-        const saved = JSON.parse(localStorage.getItem(storedIncidentsKey) ?? "[]");
-        const certifiedIds = getCertifiedIncidentIds();
-        const deletedIds = getStoredIdSet(storedDeletedIncidentsKey);
-        const overrides = getIncidentOverrides();
-        return saved.map((incident, index) => {
-            const id = typeof incident.id === "string" ? incident.id : `stored-${index}`;
-            return {
-                ...incident,
-                ...overrides[id],
-                id,
-                certified: incident.certified === true || certifiedIds.has(id),
-            };
-        }).filter((incident) => incident.id && !deletedIds.has(incident.id));
-    }
-    catch {
-        return [];
+        currentUser = null;
     }
 };
 const distanceInKilometers = (first, second) => {
@@ -209,15 +193,7 @@ const renderMainIncidentList = () => {
     updateIncidentCounts();
 };
 const getSignedInUser = () => {
-    const savedUser = localStorage.getItem(storedSessionKey);
-    if (savedUser)
-        return savedUser;
-    const previousSession = sessionStorage.getItem(storedSessionKey);
-    if (!previousSession)
-        return null;
-    localStorage.setItem(storedSessionKey, previousSession);
-    sessionStorage.removeItem(storedSessionKey);
-    return previousSession;
+    return currentUser?.name ?? null;
 };
 const isSignedIn = () => Boolean(getSignedInUser());
 const updateSessionButton = () => {
@@ -248,9 +224,9 @@ const updateSessionButton = () => {
     button.setAttribute("aria-label", `Cerrar sesión de ${username}`);
     button.title = "Cerrar sesión";
 };
-const closeSession = () => {
-    localStorage.removeItem(storedSessionKey);
-    sessionStorage.removeItem(storedSessionKey);
+const closeSession = async () => {
+    await apiRequest("/session", { method: "DELETE" }).catch(() => undefined);
+    currentUser = null;
     setPage("home");
     updateSessionButton();
     renderMyIncidents();
@@ -282,7 +258,7 @@ const renderReportRanking = () => {
         return;
     list.textContent = "";
     const reportCounts = new Map();
-    getUserIncidents().forEach((incident) => {
+    getStoredIncidents().forEach((incident) => {
         const author = incident.author?.trim();
         if (!author || author.toLowerCase() === "policia")
             return;
@@ -491,20 +467,21 @@ const addIncidentMarker = (incident, targetMap) => {
     marker.bindPopup(popup);
     return marker;
 };
-const certifyIncident = (incident) => {
+const certifyIncident = async (incident) => {
     if (getSignedInUser() !== "policia" || incident.certified)
         return;
     if (!incident.id) {
         showToast("No se pudo identificar el aviso para certificarlo");
         return;
     }
-    const certifiedIds = getCertifiedIncidentIds();
-    certifiedIds.add(incident.id);
-    localStorage.setItem(storedCertificationsKey, JSON.stringify(Array.from(certifiedIds)));
-    incident.certified = true;
-    const demoIncident = incidents.find((item) => item.id === incident.id);
-    if (demoIncident)
-        demoIncident.certified = true;
+    try {
+        await apiRequest(`/avisos/${incident.id}/verify`, { method: "PATCH" });
+        incident.certified = true;
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "No se pudo certificar el aviso");
+        return;
+    }
     const trackedMarker = incidentMarkers.find((item) => item.incident.id === incident.id);
     if (trackedMarker && map && window.L) {
         trackedMarker.incident.certified = true;
@@ -578,6 +555,7 @@ const initializeMap = () => {
     centerOnUser(map, false);
 };
 window.setTimeout(initializeMap, 0);
+void restoreSession().finally(() => loadBackendData());
 const refreshFilter = () => {
     document.querySelectorAll(".alert-card").forEach((alert) => {
         alert.hidden = currentFilter !== "Todos" && alert.dataset.type !== currentFilter;
@@ -605,22 +583,21 @@ const openEditIncident = (incident) => {
     $("#editIncidentLongitude").value = String(incident.coordinates[1]);
     setModal("editIncidentModal", true);
 };
-const deleteIncident = (incident) => {
+const deleteIncident = async (incident) => {
     if (getSignedInUser() !== "admin" || !incident.id) {
         showToast("Solo administración puede eliminar avisos");
         return;
     }
     if (!window.confirm(`¿Eliminar el aviso "${incident.title}"?`))
         return;
-    const deletedIds = getStoredIdSet(storedDeletedIncidentsKey);
-    deletedIds.add(incident.id);
-    localStorage.setItem(storedDeletedIncidentsKey, JSON.stringify(Array.from(deletedIds)));
-    const certifiedIds = getCertifiedIncidentIds();
-    certifiedIds.delete(incident.id);
-    localStorage.setItem(storedCertificationsKey, JSON.stringify(Array.from(certifiedIds)));
-    const overrides = getIncidentOverrides();
-    delete overrides[incident.id];
-    localStorage.setItem(storedIncidentOverridesKey, JSON.stringify(overrides));
+    try {
+        await apiRequest(`/avisos/${incident.id}`, { method: "DELETE" });
+        backendIncidents = backendIncidents.filter((item) => item.id !== incident.id);
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "No se pudo eliminar el aviso");
+        return;
+    }
     refreshStoredViews();
     showToast("Aviso eliminado");
 };
@@ -710,10 +687,10 @@ renderMainIncidentList();
 updateSessionButton();
 renderMyIncidents();
 renderReportRanking();
-const currentUser = getSignedInUser();
-if (currentUser === "policia")
+const initialUser = getSignedInUser();
+if (initialUser === "policia")
     setPage("police");
-else if (currentUser === "admin")
+else if (initialUser === "admin")
     setPage("admin");
 $("#locationButton")?.addEventListener("click", () => centerOnUser(map));
 $("#mapLocateButton")?.addEventListener("click", () => centerOnUser(map));
@@ -742,7 +719,7 @@ $("#registerButton")?.addEventListener("click", () => {
     setModal("loginModal", false);
     setModal("registerModal", true);
 });
-$("#reportForm")?.addEventListener("submit", (event) => {
+$("#reportForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const username = getSignedInUser();
     if (!username) {
@@ -757,30 +734,36 @@ $("#reportForm")?.addEventListener("submit", (event) => {
         return;
     }
     const coordinates = [...selectedCoordinates];
-    const newIncident = {
-        id: crypto.randomUUID(),
-        title: `${type} reportado por la comunidad`,
-        type,
-        coordinates,
-        age: "ahora mismo",
-        certified: false,
-        severity: "Pendiente",
-        place: `${coordinates[0].toFixed(5)}, ${coordinates[1].toFixed(5)} · ${description}`,
-        author: username,
-    };
-    const saved = getUserIncidents();
-    localStorage.setItem(storedIncidentsKey, JSON.stringify([...saved, newIncident]));
-    renderIncidentInList();
-    renderMyIncidents();
-    renderReportRanking();
-    if (map && window.L) {
-        const marker = addIncidentMarker(newIncident, map);
-        marker.openPopup();
-        incidentMarkers.push({ incident: newIncident, marker });
-        if (currentFilter !== "Todos" && newIncident.type !== currentFilter)
-            map.removeLayer(marker);
-        if (userMarker)
-            userMarker.addTo(map);
+    if (!currentUser)
+        return;
+    try {
+        const saved = await apiRequest("/avisos", {
+            method: "POST",
+            body: JSON.stringify({
+                titolAvis: `${type} reportado por la comunidad`,
+                type,
+                ubicacion: `${coordinates[0].toFixed(5)}, ${coordinates[1].toFixed(5)}`,
+                descripcion: description || "Sin descripción",
+                latitude: coordinates[0],
+                longitude: coordinates[1],
+                severity: "Pendiente",
+                idUser: currentUser.id,
+                idDelincuent: 1,
+            }),
+        });
+        const newIncident = mapBackendIncident(saved);
+        backendIncidents.push(newIncident);
+        backendIncidents.sort((first, second) => second.id.localeCompare(first.id, undefined, { numeric: true }));
+        renderIncidentInList();
+        renderMyIncidents();
+        renderReportRanking();
+        refreshMapMarkers();
+        if (map)
+            addIncidentMarker(newIncident, map).openPopup();
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "No se pudo publicar el aviso");
+        return;
     }
     if (currentPage === "police")
         renderPoliceIncidents();
@@ -790,7 +773,7 @@ $("#reportForm")?.addEventListener("submit", (event) => {
     event.target.reset();
     showToast("Aviso publicado y añadido al mapa");
 });
-$("#editIncidentForm")?.addEventListener("submit", (event) => {
+$("#editIncidentForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (getSignedInUser() !== "admin" || !editingIncidentId) {
         showToast("Solo administración puede modificar avisos");
@@ -812,23 +795,37 @@ $("#editIncidentForm")?.addEventListener("submit", (event) => {
         showToast("Comprueba el título, la ubicación y las coordenadas");
         return;
     }
-    const overrides = getIncidentOverrides();
-    overrides[editingIncidentId] = {
-        ...overrides[editingIncidentId],
-        title,
-        type,
-        place,
-        severity,
-        coordinates: [latitude, longitude],
-    };
-    localStorage.setItem(storedIncidentOverridesKey, JSON.stringify(overrides));
+    const existing = backendIncidents.find((item) => item.id === editingIncidentId);
+    if (!existing)
+        return;
+    try {
+        await apiRequest(`/avisos/${editingIncidentId}`, {
+            method: "PUT",
+            body: JSON.stringify({
+                titolAvis: title,
+                type,
+                ubicacion: place,
+                descripcion: existing.place.split(" · ").slice(1).join(" · ") || "Aviso actualizado",
+                latitude,
+                longitude,
+                severity,
+                idUser: existing.databaseUserId,
+                idDelincuent: existing.databaseDelincuentId,
+            }),
+        });
+        Object.assign(existing, { title, type, place, severity, coordinates: [latitude, longitude] });
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "No se pudo actualizar el aviso");
+        return;
+    }
     editingIncidentId = null;
     setModal("editIncidentModal", false);
     event.target.reset();
     refreshStoredViews();
     showToast("Aviso actualizado");
 });
-$("#registerForm")?.addEventListener("submit", (event) => {
+$("#registerForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (getSignedInUser()) {
         showToast("Cierra la sesión actual antes de registrar otro usuario");
@@ -836,15 +833,16 @@ $("#registerForm")?.addEventListener("submit", (event) => {
     }
     const username = $("#registerUser").value.trim().toLowerCase();
     const password = $("#registerPassword").value;
-    const users = JSON.parse(localStorage.getItem(storedUsersKey) ?? "[]");
-    if (["admin", "policia"].includes(username) || users.some((user) => user.username === username)) {
-        showToast("Ese usuario ya existe");
+    try {
+        currentUser = await apiRequest("/register", {
+            method: "POST",
+            body: JSON.stringify({ name: username, contrasenya: password }),
+        });
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "No se pudo registrar el usuario");
         return;
     }
-    users.push({ username, password });
-    localStorage.setItem(storedUsersKey, JSON.stringify(users));
-    localStorage.setItem(storedSessionKey, username);
-    sessionStorage.removeItem(storedSessionKey);
     updateSessionButton();
     renderMyIncidents();
     setModal("registerModal", false);
@@ -854,7 +852,7 @@ $("#registerForm")?.addEventListener("submit", (event) => {
 const openRanking = () => setModal("rankingModal", true);
 $("#openRankingButton")?.addEventListener("click", openRanking);
 $("#openRankingLink")?.addEventListener("click", openRanking);
-$("#loginForm")?.addEventListener("submit", (event) => {
+$("#loginForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (getSignedInUser()) {
         setModal("loginModal", false);
@@ -863,17 +861,22 @@ $("#loginForm")?.addEventListener("submit", (event) => {
     }
     const username = $("#loginUser")?.value.trim().toLowerCase();
     const password = $("#loginPassword")?.value;
-    const validRole = (username === "admin" || username === "policia") && password === "1234";
-    const users = JSON.parse(localStorage.getItem(storedUsersKey) ?? "[]");
-    const validRegisteredUser = users.some((user) => user.username === username && user.password === password);
-    if (!validRole && !validRegisteredUser) {
-        showToast("Usuario o contraseña incorrectos");
+    if (!username || !password) {
+        showToast("Introduce usuario y contraseña");
+        return;
+    }
+    try {
+        currentUser = await apiRequest("/login", {
+            method: "POST",
+            body: JSON.stringify({ name: username, contrasenya: password }),
+        });
+    }
+    catch (error) {
+        showToast(error instanceof Error ? error.message : "Usuario o contraseña incorrectos");
         return;
     }
     setModal("loginModal", false);
     event.target.reset();
-    localStorage.setItem(storedSessionKey, username ?? "");
-    sessionStorage.removeItem(storedSessionKey);
     updateSessionButton();
     renderMyIncidents();
     if (username === "policia")
