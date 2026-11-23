@@ -27,7 +27,7 @@ Els usuaris normals també poden crear un compte des de l’opció **Crear un co
 
 La pantalla principal resumeix els avisos disponibles i ofereix dues eines bàsiques: el mapa i la llista d’incidents.
 
-![Portada i accés a la creació d’avisos](image-1.png)
+![Portada i accés a la creació d’avisos](Imagenes/image-1.png)
 
 ### Elements que apareixen a la imatge
 
@@ -45,7 +45,7 @@ La pantalla principal resumeix els avisos disponibles i ofereix dues eines bàsi
 
 Premeu **Crear un avís** i completeu les tres parts del formulari.
 
-![Formulari per crear un nou avís](image-2.png)
+![Formulari per crear un nou avís](Imagenes/image-2.png)
 
 ### 3.1. Tipus d’incident
 
@@ -74,7 +74,7 @@ Escriviu una explicació breu i objectiva al camp **Expliqueu què ha passat**. 
 
 Finalment, premeu **Enviar avís**. El missatge es guardarà i apareixerà al mapa i a la llista de l’usuari.
 
-![Mapa de localització i descripció de l’incident](image-3.png)
+![Mapa de localització i descripció de l’incident](Imagenes/image-3.png)
 
 > Aquesta aplicació és un prototip. No substitueix les trucades al 112 ni les notificacions oficials a les forces de seguretat.
 
@@ -84,7 +84,7 @@ Finalment, premeu **Enviar avís**. El missatge es guardarà i apareixerà al ma
 
 A la secció **Cerca de tu**, els avisos s’ordenen per proximitat i es poden filtrar per categoria.
 
-![Avisos recents i filtres per tipus](image-4.png)
+![Avisos recents i filtres per tipus](Imagenes/image-4.png)
 
 ### Informació de cada avís
 
@@ -113,7 +113,7 @@ El mapa mostra els incidents amb símbols i colors segons la gravetat:
 
 Els controls permeten ampliar el mapa i tornar a la ubicació actual.
 
-![Mapa d’ubicacions i avisos](image.png)
+![Mapa d’ubicacions i avisos](Imagenes/image.png)
 
 ---
 
@@ -121,7 +121,7 @@ Els controls permeten ampliar el mapa i tornar a la ubicació actual.
 
 Quan un usuari normal inicia sessió, pot consultar els avisos que ha publicat dins la secció **Mis avisos**.
 
-![Llista dels avisos publicats per l’usuari](image-5.png)
+![Llista dels avisos publicats per l’usuari](Imagenes/image-5.png)
 
 Aquesta informació permet identificar:
 
@@ -138,7 +138,7 @@ Cada avís també pot mostrar un menú d’opcions, segons els permisos de la se
 
 La columna dreta mostra dues classificacions de la comunitat.
 
-![Persones de risc i comunitat activa](image-6.png)
+![Persones de risc i comunitat activa](Imagenes/image-6.png)
 
 ### Persones de risc
 
@@ -164,7 +164,7 @@ Els valors es calculen a partir dels avisos disponibles al navegador i poden var
 
 Inicieu sessió amb el compte policial autoritzat per accedir a la gestió policial.
 
-![Panell policial amb els avisos pendents](image-8.png)
+![Panell policial amb els avisos pendents](Imagenes/image-8.png)
 
 ### Abans de fer una verificació
 
@@ -179,7 +179,7 @@ La policia ha de comprovar que la informació de l’avís és coherent i real. 
 
 Un cop certificat, l’avís mostrarà l’etiqueta **✓ Certificat** i es tindrà en compte als apartats basats en dades verificades.
 
-![Detall de la funció Certificar](image-7.png)
+![Detall de la funció Certificar](Imagenes/image-7.png)
 
 Podeu prémer **Tornar a la pàgina principal** per sortir del panell policial.
 
@@ -189,7 +189,7 @@ Podeu prémer **Tornar a la pàgina principal** per sortir del panell policial.
 
 Inicieu sessió amb el compte d’administració autoritzat per accedir a totes les opcions d’administració.
 
-![Llista d’avisos accessible per a l’administrador](image-9.png)
+![Llista d’avisos accessible per a l’administrador](Imagenes/image-9.png)
 
 ### Opcions disponibles
 
