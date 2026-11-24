@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="700" viewBox="0 0 1180 700" role="img" aria-labelledby="title description">
+  <title id="title">Diagrama entitat-relació de NGMo</title>
+  <desc id="description">Les entitats Users es relacionen amb Sessions i Avisos; Delincuentes es relaciona amb Avisos. Una entitat pot estar associada a molts registres dependents.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f5f8fc; }
+      .entity { fill: #fff; stroke: #cbd6e2; stroke-width: 2; }
+      .header-user { fill: #145c70; }
+      .header-session { fill: #475b92; }
+      .header-incident { fill: #176b57; }
+      .header-person { fill: #875a26; }
+      .title { fill: #fff; font: 700 20px Arial, sans-serif; }
+      .field { fill: #27364a; font: 16px Arial, sans-serif; }
+      .key { fill: #145c70; font: 700 15px Arial, sans-serif; }
+      .connector { fill: none; stroke: #60758b; stroke-width: 3; }
+      .relation { fill: #34495e; font: 700 14px Arial, sans-serif; }
+      .card-shadow { filter: drop-shadow(0 5px 10px rgba(28, 48, 70, .10)); }
+    </style>
+  </defs>
+  <rect class="bg" width="1180" height="700" rx="22"/>
+
+  <g class="connector">
+    <path d="M365 167 H430"/>
+    <path d="M275 307 C305 387 369 440 440 475"/>
+    <path d="M970 275 C970 345 900 410 815 470"/>
+  </g>
+  <g class="relation">
+    <text x="372" y="152">1</text>
+    <text x="420" y="152">N</text>
+    <text x="288" y="349">1</text>
+    <text x="414" y="453">N</text>
+    <text x="958" y="310">1</text>
+    <text x="825" y="459">N</text>
+    <text x="365" y="130">té sessions</text>
+    <text x="315" y="420">publica</text>
+    <text x="866" y="392">associada a</text>
+  </g>
+
+  <g class="card-shadow">
+    <rect class="entity" x="55" y="85" width="310" height="222" rx="14"/>
+    <path class="header-user" d="M69 85h282a14 14 0 0 1 14 14v42H55V99a14 14 0 0 1 14-14z"/>
+    <text class="title" x="78" y="122">Users</text>
+    <text class="key" x="78" y="167">PK  IdUser</text>
+    <text class="field" x="78" y="199">Name</text>
+    <text class="field" x="78" y="231">Contrasenya</text>
+    <text class="field" x="78" y="263">Rol</text>
+  </g>
+
+  <g class="card-shadow">
+    <rect class="entity" x="430" y="65" width="310" height="194" rx="14"/>
+    <path class="header-session" d="M444 65h282a14 14 0 0 1 14 14v42H430V79a14 14 0 0 1 14-14z"/>
+    <text class="title" x="453" y="102">Sessions</text>
+    <text class="key" x="453" y="149">PK  Id</text>
+    <text class="field" x="453" y="180">Token (únic)</text>
+    <text class="field" x="453" y="211">CreatedAt</text>
+    <text class="key" x="453" y="242">FK  IdUser</text>
+  </g>
+
+  <g class="card-shadow">
+    <rect class="entity" x="815" y="85" width="310" height="190" rx="14"/>
+    <path class="header-person" d="M829 85h282a14 14 0 0 1 14 14v42H815V99a14 14 0 0 1 14-14z"/>
+    <text class="title" x="838" y="122">Delincuentes</text>
+    <text class="key" x="838" y="169">PK  IdDelincuent</text>
+    <text class="field" x="838" y="204">Name</text>
+  </g>
+
+  <g class="card-shadow">
+    <rect class="entity" x="430" y="420" width="385" height="250" rx="14"/>
+    <path class="header-incident" d="M444 420h357a14 14 0 0 1 14 14v42H430v-42a14 14 0 0 1 14-14z"/>
+    <text class="title" x="453" y="457">Avisos</text>
+    <text class="key" x="453" y="497">PK  IdAvisos</text>
+    <text class="field" x="453" y="526">TitolAvis, Type, Ubicacion</text>
+    <text class="field" x="453" y="555">Descripcion, Severity</text>
+    <text class="field" x="453" y="584">Latitude, Longitude</text>
+    <text class="field" x="453" y="613">FechaCreacion, Verificado</text>
+    <text class="key" x="453" y="644">FK  IdUser · IdDelincuent</text>
+  </g>
+</svg>
