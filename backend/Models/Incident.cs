@@ -17,6 +17,16 @@ public class Incident
     [Required]
     public string Descripcion { get; set; } = string.Empty;
 
+    [Required]
+    [MaxLength(50)]
+    public string Type { get; set; } = string.Empty;
+
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+
+    [MaxLength(50)]
+    public string Severity { get; set; } = "Pendiente";
+
     public DateTime FechaCreacion { get; set; }
 
     public bool Verificado { get; set; }

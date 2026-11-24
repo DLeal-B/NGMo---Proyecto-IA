@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NGMo.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a9dc21f9533d9b85a3cff6de015f00b93547df87")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+941f0531fba8e8969b55b714a6869fb53ee62679")]
 [assembly: System.Reflection.AssemblyProductAttribute("NGMo.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NGMo.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -19,9 +19,8 @@ public class AuthController(NgmoDbContext db) : ControllerBase
             item.Name == request.Name.Trim().ToLower() &&
             item.Contrasenya == request.Contrasenya);
 
-        return user is null
-            ? Unauthorized(new { message = "Usuario o contraseña incorrectos" })
-            : Ok(new { id = user.IdUser, name = user.Name, rol = user.Rol });
+        if (user is null) return Unauthorized(new { message = "Usuario o contraseña incorrectos" });
+        return await CreateSession(user);
     }
 
     [HttpPost("register")]
@@ -45,6 +44,45 @@ public class AuthController(NgmoDbContext db) : ControllerBase
         };
         db.Users.Add(user);
         await db.SaveChangesAsync();
+        return await CreateSession(user);
+    }
+
+    [HttpGet("session")]
+    public async Task<IActionResult> Session()
+    {
+        var token = Request.Cookies["ngmo-session"];
+        var session = token is null ? null : await db.Sessions.Include(item => item.User)
+            .FirstOrDefaultAsync(item => item.Token == token);
+        return session?.User is null
+            ? Unauthorized()
+            : Ok(new { id = session.User.IdUser, name = session.User.Name, rol = session.User.Rol });
+    }
+
+    [HttpDelete("session")]
+    public async Task<IActionResult> Logout()
+    {
+        var token = Request.Cookies["ngmo-session"];
+        if (token is not null)
+        {
+            var session = await db.Sessions.FirstOrDefaultAsync(item => item.Token == token);
+            if (session is not null) db.Sessions.Remove(session);
+            await db.SaveChangesAsync();
+        }
+        Response.Cookies.Delete("ngmo-session");
+        return NoContent();
+    }
+
+    private async Task<IActionResult> CreateSession(User user)
+    {
+        var token = Guid.NewGuid().ToString("N");
+        db.Sessions.Add(new Session { Token = token, IdUser = user.IdUser, CreatedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+        Response.Cookies.Append("ngmo-session", token, new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Lax,
+            IsEssential = true
+        });
         return Ok(new { id = user.IdUser, name = user.Name, rol = user.Rol });
     }
 }

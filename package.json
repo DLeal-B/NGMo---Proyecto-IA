@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "dev": "npx serve ."
+    "dev": "npx serve .",
+    "backend": "dotnet run --project backend/NGMo.Api.csproj --urls http://127.0.0.1:5180"
   }
 }
