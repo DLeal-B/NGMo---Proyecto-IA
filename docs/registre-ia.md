@@ -17,12 +17,13 @@
 | 7 | [`promtModificacion7.md`](../promtModificacion7.md) | Pàgines de policia i administrador |
 | 8 | [`promtModificaciones.md`](../promtModificaciones.md) | Requisits finals d'interacció |
 | 9 | [`promtModificacion8.md`](prompts/promtModificacion8.md) | Backend .NET i SQLite |
+| 10 | [`promntModificacion9.md`](prompts/promntModificacion9.md) | Reinici dels usuaris i credencials |
 
 ---
 
 ## 1. `promt.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** David Leal  
 **🏷️ Categoria:** Requisits generals
 
 Descriu els requisits inicials de la web:
@@ -39,7 +40,7 @@ Descriu els requisits inicials de la web:
 
 ## 2. `promtModifiacion2.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** David Leal  
 **🏷️ Categoria:** Modificacions generals
 
 Recull modificacions sobre la pàgina principal:
@@ -54,7 +55,7 @@ Recull modificacions sobre la pàgina principal:
 
 ## 3. `promtModificacion3.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** Raul Luna  
 **🏷️ Categoria:** Mapa i ubicació
 
 Defineix millores per a la creació i selecció d'avisos:
@@ -70,7 +71,7 @@ Defineix millores per a la creació i selecció d'avisos:
 
 ## 4. `promtModificacion4`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** Raul Luna  
 **🏷️ Categoria:** Llistats i filtres
 
 Especifica aquestes modificacions:
@@ -84,7 +85,7 @@ Especifica aquestes modificacions:
 
 ## 5. `promtModificacion5.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** Raul Luna  
 **🏷️ Categoria:** Sessió i preferències
 
 Descriu les següents funcionalitats:
@@ -97,7 +98,7 @@ Descriu les següents funcionalitats:
 
 ## 6. `promtModificacion6.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** Raul Luna  
 **🏷️ Categoria:** Certificació i rànquing
 
 Documenta:
@@ -111,7 +112,7 @@ Documenta:
 
 ## 7. `promtModificacion7.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** David Leal  
 **🏷️ Categoria:** Panells per rol
 
 Detalla les pàgines separades:
@@ -124,7 +125,7 @@ Detalla les pàgines separades:
 
 ## 8. `promtModificaciones.md`
 
-**👤 Creador:** Equip del projecte NGMo  
+**👤 Creador:** David Leal  
 **🏷️ Categoria:** Requisits finals
 
 Recull els requisits finals d'interacció i configuració:
@@ -152,3 +153,18 @@ Desenvolupa el backend amb **.NET** i **SQLite**, estructurat en tres taules pri
 Defineix les relacions entre els avisos, els usuaris i els delincuentes, i permet crear, modificar, verificar i eliminar registres. El rànquing d'usuaris actius ha de consultar les dades registrades a la base de dades.In
 
 També hem demanat que totes les dades que es guardaben en localstorage es guardin en la base de dades
+
+---
+
+## 10. `promntModificacion9.md`
+
+**👤 Creador:** David Leal  
+**🏷️ Categoria:** Usuaris, autenticació i dades inicials
+
+Reinicia les dades de la taula `Users` i deixa com a usuaris inicials:
+
+- `admin` / `admin`, amb rol enum `Admin`.
+- `policia` / `policia`, amb rol enum `Policia`.
+- `user` / `user`, sense rol.
+
+Afegeix el delincuent `HustleHard`. L'inici de sessió comprova a la base de dades tant el nom com la contrasenya i els privilegis depenen del rol assignat.

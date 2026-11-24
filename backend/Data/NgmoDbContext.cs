@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NGMo.Api.Models;
+using System.Collections.Generic;
 
 namespace NGMo.Api.Data;
 
@@ -12,6 +13,10 @@ public class NgmoDbContext(DbContextOptions<NgmoDbContext> options) : DbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .Property(user => user.Rol)
+            .HasConversion<string>();
+
         modelBuilder.Entity<User>().HasKey(user => user.IdUser);
         modelBuilder.Entity<Delincuent>().HasKey(delincuent => delincuent.IdDelincuent);
         modelBuilder.Entity<Incident>().HasKey(incident => incident.IdAvisos);
@@ -46,19 +51,31 @@ public class NgmoDbContext(DbContextOptions<NgmoDbContext> options) : DbContext(
 
     public static async Task SeedAsync(NgmoDbContext db)
     {
-        if (!await db.Users.AnyAsync())
+        var users = await db.Users.ToListAsync();
+
+        if (users.Count == 0)
         {
             db.Users.AddRange(
-                new User { Name = "admin", Contrasenya = "1234", Rol = "admin" },
-                new User { Name = "policia", Contrasenya = "1234", Rol = "policia" });
+                new User { Name = "admin", Contrasenya = "1234", Rol = Rol.Admin },
+                new User { Name = "policia", Contrasenya = "1234", Rol = Rol.Policia },
+                new User { Name = "user", Contrasenya = "1234", Rol = null });
         }
+        else if (!users.Any(user => user.Name == "policia"))
+        {
+            db.Users.Add(new User
+            {
+                Name = "policia",
+                Contrasenya = "1234",
+                Rol = Rol.Policia
+            });
+        }
+        await db.SaveChangesAsync();
 
         if (!await db.Delincuentes.AnyAsync())
         {
-            db.Delincuentes.AddRange(
-                new Delincuent { Name = "HustleHard" },
-                new Delincuent { Name = "Desconegut" },
-                new Delincuent { Name = "Persona en investigació" });
+            db.Delincuentes.Add(
+                new Delincuent { Name = "HustleHard" });
+            await db.SaveChangesAsync();
         }
 
         if (!await db.Incidents.AnyAsync())
@@ -66,7 +83,6 @@ public class NgmoDbContext(DbContextOptions<NgmoDbContext> options) : DbContext(
             var admin = await db.Users.SingleAsync(user => user.Name == "admin");
             var police = await db.Users.SingleAsync(user => user.Name == "policia");
             var hustleHard = await db.Delincuentes.SingleAsync(item => item.Name == "HustleHard");
-            var unknown = await db.Delincuentes.SingleAsync(item => item.Name == "Desconegut");
             db.Incidents.AddRange(
                 new Incident
                 {
@@ -80,14 +96,14 @@ public class NgmoDbContext(DbContextOptions<NgmoDbContext> options) : DbContext(
                     TitolAvis = "Hurto de pertenencias", Type = "Hurto",
                     Ubicacion = "Metro Sol, Madrid", Descripcion = "Aviso de demostración",
                     Latitude = 40.4185, Longitude = -3.6994, FechaCreacion = DateTime.UtcNow.AddHours(-1),
-                    Verificado = false, Severity = "Leve", IdUser = admin.IdUser, IdDelincuent = unknown.IdDelincuent
+                    Verificado = false, Severity = "Leve", IdUser = admin.IdUser, IdDelincuent = hustleHard.IdDelincuent
                 },
                 new Incident
                 {
                     TitolAvis = "Agresión en vía pública", Type = "Agresión",
                     Ubicacion = "Plaza Elíptica, Madrid", Descripcion = "Aviso de demostración",
                     Latitude = 40.385, Longitude = -3.719, FechaCreacion = DateTime.UtcNow.AddMinutes(-42),
-                    Verificado = true, Severity = "Medio", IdUser = police.IdUser, IdDelincuent = unknown.IdDelincuent
+                    Verificado = true, Severity = "Medio", IdUser = police.IdUser, IdDelincuent = hustleHard.IdDelincuent
                 });
         }
 

@@ -15,7 +15,14 @@ public class User
     public string Contrasenya { get; set; } = string.Empty;
 
     [MaxLength(20)]
-    public string? Rol { get; set; }
+    public Rol? Rol { get; set; }
 
     public ICollection<Incident> Incidents { get; set; } = new List<Incident>();
+}
+
+public enum Rol
+{
+    Admin,
+    Policia,
+    User
 }

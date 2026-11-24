@@ -215,7 +215,7 @@ const createIncidentCard = (
   card.hidden = applyFilter && currentFilter !== "Todos" && incident.type !== currentFilter;
   card.append(icon, details, more);
   card.addEventListener("click", (event) => {
-    if (!enablePoliceCertification || getSignedInUser() !== "policia" || incident.certified) return;
+    if (!enablePoliceCertification || getSignedInRole() !== "policia" || incident.certified) return;
     if (event.target instanceof HTMLElement && event.target.closest(".more-button, .certification-control")) return;
     if (card.querySelector(".certification-control")) return;
     const certificationControl = document.createElement("label");
@@ -250,6 +250,10 @@ const getSignedInUser = (): string | null => {
   return currentUser?.name ?? null;
 };
 
+const getSignedInRole = (): string | null => {
+  return currentUser?.rol?.toLowerCase() ?? null;
+};
+
 const isSignedIn = (): boolean => Boolean(getSignedInUser());
 
 const updateSessionButton = (): void => {
@@ -258,9 +262,10 @@ const updateSessionButton = (): void => {
   const policePageButton = $("#policePageButton");
   const adminPageButton = $("#adminPageButton");
   const username = getSignedInUser();
+  const role = getSignedInRole();
   if (logoutButton) logoutButton.hidden = !username;
-  if (policePageButton) policePageButton.hidden = username !== "policia";
-  if (adminPageButton) adminPageButton.hidden = username !== "admin";
+  if (policePageButton) policePageButton.hidden = role !== "policia";
+  if (adminPageButton) adminPageButton.hidden = role !== "admin";
   if (!button) return;
   if (!username) {
     button.textContent = "LM";
@@ -268,9 +273,9 @@ const updateSessionButton = (): void => {
     button.title = "Iniciar sesión";
     return;
   }
-  button.textContent = username === "admin"
+  button.textContent = role === "admin"
     ? "AD"
-    : username === "policia"
+    : role === "policia"
       ? "PL"
       : username.slice(0, 2).toUpperCase();
   button.setAttribute("aria-label", `Cerrar sesión de ${username}`);
@@ -420,12 +425,12 @@ const renderAdminIncidents = (): void => {
 };
 
 const setPage = (page: PageId): void => {
-  const username = getSignedInUser();
-  if (page === "police" && username !== "policia") {
+  const role = getSignedInRole();
+  if (page === "police" && role !== "policia") {
     showToast("El panel policial requiere una sesión de policía");
     return;
   }
-  if (page === "admin" && username !== "admin") {
+  if (page === "admin" && role !== "admin") {
     showToast("El panel de administración requiere una sesión de administrador");
     return;
   }
@@ -515,7 +520,7 @@ const addIncidentMarker = (incident: Incident, targetMap: LeafletMap): LeafletMa
 };
 
 const certifyIncident = async (incident: Incident): Promise<void> => {
-  if (getSignedInUser() !== "policia" || incident.certified) return;
+  if (getSignedInRole() !== "policia" || incident.certified) return;
   if (!incident.id) {
     showToast("No se pudo identificar el aviso para certificarlo");
     return;
@@ -616,7 +621,7 @@ const refreshFilter = (): void => {
 };
 
 const openEditIncident = (incident: Incident): void => {
-  if (getSignedInUser() !== "admin" || !incident.id) {
+  if (getSignedInRole() !== "admin" || !incident.id) {
     showToast("Solo administración puede modificar avisos");
     return;
   }
@@ -631,7 +636,7 @@ const openEditIncident = (incident: Incident): void => {
 };
 
 const deleteIncident = async (incident: Incident): Promise<void> => {
-  if (getSignedInUser() !== "admin" || !incident.id) {
+  if (getSignedInRole() !== "admin" || !incident.id) {
     showToast("Solo administración puede eliminar avisos");
     return;
   }
@@ -732,9 +737,9 @@ renderMainIncidentList();
 updateSessionButton();
 renderMyIncidents();
 renderReportRanking();
-const initialUser = getSignedInUser();
-if (initialUser === "policia") setPage("police");
-else if (initialUser === "admin") setPage("admin");
+const initialRole = getSignedInRole();
+if (initialRole === "policia") setPage("police");
+else if (initialRole === "admin") setPage("admin");
 
 $("#locationButton")?.addEventListener("click", () => centerOnUser(map));
 $("#mapLocateButton")?.addEventListener("click", () => centerOnUser(map));
@@ -818,7 +823,7 @@ $("#reportForm")?.addEventListener("submit", async (event) => {
 
 $("#editIncidentForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (getSignedInUser() !== "admin" || !editingIncidentId) {
+  if (getSignedInRole() !== "admin" || !editingIncidentId) {
     showToast("Solo administración puede modificar avisos");
     return;
   }
@@ -921,11 +926,12 @@ $("#loginForm")?.addEventListener("submit", async (event) => {
   (event.target as HTMLFormElement).reset();
   updateSessionButton();
   renderMyIncidents();
-  if (username === "policia") setPage("police");
-  else if (username === "admin") setPage("admin");
-  const message = username === "admin"
+  const role = getSignedInRole();
+  if (role === "policia") setPage("police");
+  else if (role === "admin") setPage("admin");
+  const message = role === "admin"
     ? "Sesión iniciada como administrador"
-    : username === "policia"
+    : role === "policia"
       ? "Sesión iniciada como policía"
       : "Sesión iniciada correctamente";
   showToast(message);

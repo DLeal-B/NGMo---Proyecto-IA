@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NGMo.Api.Data;
+using NGMo.Api.Models;
 
 namespace NGMo.Api.Controllers;
 
@@ -12,7 +13,7 @@ public class UsersController(NgmoDbContext db) : ControllerBase
     public async Task<IActionResult> GetActiveUsers()
     {
         var users = await db.Users
-            .Where(user => user.Rol != "policia")
+            .Where(user => user.Rol != Rol.Policia)
             .Select(user => new
             {
                 user.IdUser,
